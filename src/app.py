@@ -1,17 +1,48 @@
+from datetime import datetime
 import os
 import click
+import sqlalchemy as sa
 
 from flask import Flask, current_app, url_for, request
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
   pass
 
 db = SQLAlchemy(model_class=Base)
+
+
+class User(db.Model): 
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(
+        sa.String, unique=True, nullable=False
+        )
+    # active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False)
+    # password: Mapped[str] = mapped_column(sa.String, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"User(id={self.id!r}, username={self.username!r})"
+
+
+class Post(db.Model): 
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    created: Mapped[datetime] = mapped_column(
+        sa.DateTime, server_default=sa.func.now()
+        )
+    title: Mapped[str] = mapped_column(sa.String, nullable=False)
+    body: Mapped[str] = mapped_column(sa.String, nullable=False)
+    author_id: Mapped[int] = mapped_column(
+        sa.ForeignKey('user.id'), nullable=False
+        )
+
+    def __repr__(self) -> str:
+        return f"Post(id={self.id!r}, \
+                title={self.title!r}, \
+                author_id={self.author_id!r})"
 
 
 @click.command('init-db')
@@ -78,5 +109,12 @@ def create_app(test_config=None):
 
     # initialize extension
     db.init_app(app)
+
+    # register blueprints
+    from src.controllers import user
+    from src.controllers import post
+
+    app.register_blueprint(user.app)
+    app.register_blueprint(post.app)
 
     return app
