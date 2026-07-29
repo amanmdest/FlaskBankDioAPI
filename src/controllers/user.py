@@ -1,6 +1,8 @@
-from flask import Blueprint, request
+from flask import Blueprint, redirect, request, url_for
+from sqlalchemy import inspect
 from src.app import User, db
 from http import HTTPStatus
+
 
 def _create_user():
     data = request.json
@@ -8,12 +10,68 @@ def _create_user():
     db.session.add(user)
     db.session.commit()
 
+
+def _list_user():
+    query = db.select(User)
+    users = db.session.execute(query).scalars()
+    result = [{'id': user.id, 'username': user.username} for user in users]
+    return result
+
+
+def _get_user(id):
+    user = db.get_or_404(User, id)
+    return {'id': user.id, 'username': user.username}
+
+
+def _update_user(id):
+    data = request.json
+    user = db.get_or_404(User, id)
+    # print(user)
+    mapper = inspect(User)
+    for column in mapper.attrs:
+        # print(column.key)
+        if column.key in data:
+            setattr(user, column.key, data[column.key])    
+    db.session.commit()
+
+    return {
+        "id": user.id,
+        "username": user.username
+    }
+
+
+def _delete_user(id):
+    user = db.get_or_404(User, id)
+    db.session.delete(user)
+    db.session.commit()
+
+
 app = Blueprint('user', __name__, url_prefix='/users')
 
+
 @app.route('/', methods=['GET', 'POST'])
-def handle_user(): 
+def list_or_create_user(): 
     if request.method == 'POST':
         _create_user()
-        return {'message': 'User created!'}, HTTPStatus.CREATED
+        return {'message': 'The user was created!'}, HTTPStatus.CREATED
     else: 
-        return {'users': []}, HTTPStatus.OK
+        return {'users': _list_user()}, HTTPStatus.OK
+
+
+@app.route('/<int:id>', methods=['GET'])
+def get_user(id): 
+    if request.method == 'GET':
+        return {'users': _get_user(id)}, HTTPStatus.OK
+
+
+@app.route('/<int:id>/update', methods=['PATCH'])
+def update_user(id): 
+    if request.method == 'PATCH':
+        return _update_user(id), HTTPStatus.OK
+
+
+@app.route('/<int:id>/delete', methods=['DELETE'])
+def delete_user(id): 
+    if request.method == 'DELETE':
+        _delete_user(id)
+        return {"messsage": "User deleted"}, HTTPStatus.NO_CONTENT
