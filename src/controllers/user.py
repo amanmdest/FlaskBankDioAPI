@@ -1,4 +1,5 @@
 from flask import Blueprint, redirect, request, url_for
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import inspect
 from src.app import User, db
 from http import HTTPStatus
@@ -6,15 +7,23 @@ from http import HTTPStatus
 
 def _create_user():
     data = request.json
-    user = User(username=data['username'])
+    user = User(
+        username=data['username'],
+        password=data['password'],
+        role_id=data['role_id'],
+        )
     db.session.add(user)
     db.session.commit()
 
 
-def _list_user():
+def _list_users():
     query = db.select(User)
     users = db.session.execute(query).scalars()
-    result = [{'id': user.id, 'username': user.username} for user in users]
+    result = [{
+        'id': user.id, 
+        'username': user.username,
+        'role': {'id': user.role.id,'name': user.role.name}
+        } for user in users]
     return result
 
 
@@ -50,12 +59,18 @@ app = Blueprint('user', __name__, url_prefix='/users')
 
 
 @app.route('/', methods=['GET', 'POST'])
+@jwt_required()
 def list_or_create_user(): 
     if request.method == 'POST':
         _create_user()
-        return {'message': 'The user was created!'}, HTTPStatus.CREATED
+        return {
+            'message': 'The user was created!'
+            }, HTTPStatus.CREATED
     else: 
-        return {'users': _list_user()}, HTTPStatus.OK
+        return {
+            'identity': get_jwt_identity(),
+            'users': _list_users()
+            }, HTTPStatus.OK
 
 
 @app.route('/<int:id>', methods=['GET'])

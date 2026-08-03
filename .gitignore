@@ -4,6 +4,7 @@
 .vscode
 studies/
 *.sqlite
+posting/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
