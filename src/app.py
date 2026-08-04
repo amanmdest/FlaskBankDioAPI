@@ -10,11 +10,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import (
+    DeclarativeBase, Mapped, mapped_column, relationship
+    )
 
 
 class Base(DeclarativeBase):
-  pass
+    metadata = sa.MetaData(naming_convention={
+        "ix": 'ix_%(column_0_label)s',
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s"
+    })
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
@@ -25,7 +33,9 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(sa.String, nullable=False)
+    name: Mapped[str] = mapped_column(
+        sa.String, nullable=False, unique=True
+    )
     users: Mapped[List['User']] = relationship(back_populates='role')
 
     def __repr__(self) -> str:
@@ -135,7 +145,7 @@ def create_app(test_config=None):
 
     # initialize extension
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, render_as_batch=True)
     jwt.init_app(app)
 
     # register blueprints

@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import inspect
 from src.app import User, db
@@ -15,7 +15,6 @@ def _create_user():
     db.session.add(user)
     db.session.commit()
 
-
 def _list_users():
     query = db.select(User)
     users = db.session.execute(query).scalars()
@@ -26,11 +25,13 @@ def _list_users():
         } for user in users]
     return result
 
-
 def _get_user(id):
     user = db.get_or_404(User, id)
-    return {'id': user.id, 'username': user.username}
-
+    return {
+        'id': user.id, 
+        'username': user.username, 
+        'role': {'id': user.role.id,'name': user.role.name}
+        }
 
 def _update_user(id):
     data = request.json
@@ -45,9 +46,9 @@ def _update_user(id):
 
     return {
         "id": user.id,
-        "username": user.username
+        "username": user.username,
+        'role': {'id': user.role.id,'name': user.role.name}
     }
-
 
 def _delete_user(id):
     user = db.get_or_404(User, id)
@@ -61,6 +62,14 @@ app = Blueprint('user', __name__, url_prefix='/users')
 @app.route('/', methods=['GET', 'POST'])
 @jwt_required()
 def list_or_create_user(): 
+    user_id = get_jwt_identity()
+    user = db.get_or_404(User, user_id)
+    
+    if user.role.name != 'admin':
+        return {
+            "message": "Current user doesn't have access"
+            }, HTTPStatus.FORBIDDEN
+    
     if request.method == 'POST':
         _create_user()
         return {
@@ -68,7 +77,6 @@ def list_or_create_user():
             }, HTTPStatus.CREATED
     else: 
         return {
-            'identity': get_jwt_identity(),
             'users': _list_users()
             }, HTTPStatus.OK
 
