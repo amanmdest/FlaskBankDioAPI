@@ -14,7 +14,7 @@ def requires_role(role_name):
             
             if user.role.name != role_name:
                 return {
-                    "message": "Current user doesn't have access"
+                    'message': "Current user doesn't have access"
                     }, HTTPStatus.FORBIDDEN
             return f(*args, **kwargs)
 
