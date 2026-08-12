@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from unittest.mock import Mock, patch
 import pytest
 
 from src.utils import requires_role, squared
@@ -26,40 +25,28 @@ def test_squared_fail(test_input, exc_class, msg):
     assert str(exc.value) == msg
 
 
-def test_required_role_success():
-    user_mock = Mock()
+def test_required_role_success(mocker):
+    user_mock = mocker.Mock()
     user_mock.role.name = 'admin'
 
-    get_jwt_identity_mock = patch('src.utils.get_jwt_identity')
-    db_get_or_404_mock = patch('src.utils.db.get_or_404', return_value=user_mock)
-    db_get_or_404_mock.start()
-    get_jwt_identity_mock.start()
+    mocker.patch('src.utils.get_jwt_identity')
+    mocker.patch('src.utils.db.get_or_404', return_value=user_mock)
 
     decorated_function = requires_role('admin')(lambda: 'success')
     result = decorated_function()
 
     assert result == 'success'
 
-    db_get_or_404_mock.stop()
-    get_jwt_identity_mock.stop()
 
-
-def test_required_role_fail():
-    user_mock = Mock()
+def test_required_role_fail(mocker):
+    user_mock = mocker.Mock()
     user_mock.role.name = 'normal'
 
-    get_jwt_identity_mock = patch('src.utils.get_jwt_identity')
-    db_get_or_404_mock = patch('src.utils.db.get_or_404', return_value=user_mock)
-    db_get_or_404_mock.start()
-    get_jwt_identity_mock.start()
+    mocker.patch('src.utils.get_jwt_identity')
+    mocker.patch('src.utils.db.get_or_404', return_value=user_mock)
 
     decorated_function = requires_role('admin')(lambda: 'success')
-
     result = decorated_function()
 
-    assert result == (
-        {'message': "Current user doesn't have access"}, HTTPStatus.FORBIDDEN
-    )
-
-    db_get_or_404_mock.stop()
-    get_jwt_identity_mock.stop()
+    assert result == ({'message': "Current user doesn't have access"}, 
+                      HTTPStatus.FORBIDDEN)
