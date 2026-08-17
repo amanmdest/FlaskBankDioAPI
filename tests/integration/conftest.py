@@ -1,0 +1,50 @@
+import pytest
+from src.app import Role, User, create_app, db
+
+
+@pytest.fixture
+def app():
+    app = create_app(
+        {
+            'SECRET_KEY': 'test',
+            'SQLALCHEMY_DATABASE_URI': 'sqlite://',
+            'JWT_SECRET_KEY': 'test',
+        }
+    )
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.drop_all()
+
+
+@pytest.fixture
+def client(app):
+    return app.test_client()
+
+
+@pytest.fixture
+def admin_access_token(client, user):
+    response = client.post(
+        '/auth/login', 
+        json={
+            'username': user.username, 
+            'password': user.password
+            }
+        )
+
+    return response.json['access_token']
+
+
+@pytest.fixture
+def user():
+    role = Role(name='admin')
+    db.session.add(role)
+    db.session.commit()
+        
+    user = User(
+        username='Liu Kang', password='guaaa', role_id=role.id
+        )
+    db.session.add(user)
+    db.session.commit()
+
+    return user

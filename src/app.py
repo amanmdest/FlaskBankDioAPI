@@ -24,6 +24,7 @@ class Base(DeclarativeBase):
         "pk": "pk_%(table_name)s"
     })
 
+
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 jwt = JWTManager()
@@ -58,7 +59,7 @@ class User(db.Model):
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, \
             username={self.username!r}), \
-            active={self.active!r}' 
+            role={self.role!r}' 
 
 
 class Post(db.Model): 
