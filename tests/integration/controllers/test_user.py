@@ -2,56 +2,46 @@ from http import HTTPStatus
 
 from sqlalchemy import func
 
-from src.app import Role, User, db
+from src.app import db
+from src.models.role import Role
+from src.models.user import User
 
 
 def test_create_user_success(admin_access_token, client):
     role_id = db.session.execute(
-        db.select(Role.id).where(Role.name == 'admin')).scalar()
-    
+        db.select(Role.id).where(Role.name == 'admin')
+    ).scalar()
+
     response = client.post(
         'users/',
-        headers = {'Authorization': f'Bearer {admin_access_token}'},
-        json={'username': 'Snake Eater',
-              'password': 'notforhonor',
-              'role_id': role_id}
-        )
+        headers={'Authorization': f'Bearer {admin_access_token}'},
+        json={
+            'username': 'Snake Eater',
+            'password': 'notforhonor',
+            'role_id': role_id,
+        },
+    )
 
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json == {'message': 'The user was created!'}    
-    assert db.session.execute(
-        db.select(func.count(User.id))).scalar() == 2
+    assert response.json == {'message': 'The user was created!'}
+    assert db.session.execute(db.select(func.count(User.id))).scalar() == 4  # noqa
 
 
 def test_list_users_success(admin_access_token, client):
-    user = db.session.execute(
-        db.select(User).where(User.username == 'Liu Kang')
-        ).scalar()
     response = client.get(
-        'users/',
-        headers = {'Authorization': f'Bearer {admin_access_token}'}
-        )
-
+        'users/', headers={'Authorization': f'Bearer {admin_access_token}'}
+    )
+    users = db.session.execute(db.select(User)).scalars()
+    
     assert response.status_code == HTTPStatus.OK
-    assert response.json == {'users': [
-        {
-            'id': user.id,
-            'role': {'id': user.role.id, 'name': user.role.name},
-            'username': user.username
-        }]}
+    assert response.json == [ user.to_dict() for user in users ]
 
 
 def test_get_user_success(client, user):
     response = client.get('users/1')
-
+    
     assert response.status_code == HTTPStatus.OK
-    assert response.json == {
-        'users': {
-            'id': user.id,
-            'username': user.username,
-            'role': {'id': user.role.id, 'name': user.role.name}
-            }
-        }   
+    assert response.json == user.to_dict()
 
 
 def test_get_user_not_found(client):
@@ -64,11 +54,11 @@ def test_get_user_not_found(client):
 #     response = client.get('users/1')
 
 #     assert response.status_code == HTTPStatus.OK
-#     assert response.json == {}    
+#     assert response.json == {}
 
 
 # def test_delete_user_success(client):
 #     response = client.get('users/1')
 
 #     assert response.status_code == HTTPStatus.OK
-#     assert response.json == {}    
+#     assert response.json == {}
