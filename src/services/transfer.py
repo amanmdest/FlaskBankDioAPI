@@ -1,0 +1,57 @@
+from http import HTTPStatus
+from http.client import HTTPException
+
+from flask import request
+
+from src.app import db
+from src.models.account import Account
+from src.models.transfer import Transfer
+from src.controllers.account import update_account
+
+
+class TransferServices:
+    def _make_transfer(account_id):
+        query = db.select(Account).where(Account.id == account_id)
+        account = db.session.execute(query).scalar()
+        data = request.json
+
+        if data['transfer_type'] == 'withdraw':
+            if account.balance < data['amount']:
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN,
+                    detail='you don''t have enough money for that operation'
+                )
+            account_data = {account.balance - data['amount']}
+
+        if data['transfer_type'] == 'deposit':
+            account_data = {account.balance + data['amount']}
+
+        update_account(account_data, account_id)
+
+        transfer = Transfer(
+            account_id=account.id,
+            amount=data['amount'],
+            transfer_type=data['transfer_type'],
+            description=data['description']
+            )
+        db.session.add(transfer)
+        db.session.commit()
+
+
+    def _list_transfers():
+        query = db.select(Transfer)
+        transfer = db.session.execute(query).scalars()
+        result = [transfer.to_dict() for transfer in transfer]
+        return result
+
+
+    def _list_transfers_by_account(account_id):
+        query = db.select(Transfer).where(Transfer.account_id == account_id)
+        transfer = db.session.execute(query).scalars()
+        result = [transfer.to_dict() for transfer in transfer]
+        return result
+
+
+    def _get_transfer(id):
+        transfer = db.get_or_404(Transfer, id)
+        return {'id': transfer.id, 'transfer': transfer.transfer}

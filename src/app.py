@@ -4,9 +4,9 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.exceptions import NotFound
 
 from src.models.base import Base
-
 
 
 db = SQLAlchemy(model_class=Base)
@@ -47,5 +47,9 @@ def create_app(test_config=None):
     app.register_blueprint(user.app)
     app.register_blueprint(account.app)
     app.register_blueprint(transfer.app)
+
+    @app.errorhandler(NotFound)
+    def handle_404_error(e):
+        return {"message": "The requested resource was not found"}, 404
 
     return app

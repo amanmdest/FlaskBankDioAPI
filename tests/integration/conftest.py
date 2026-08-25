@@ -1,6 +1,7 @@
 import pytest
 
 from src.models.account import Account
+from src.models.transfer import Transfer
 from src.models.user import User
 from src.models.role import Role
 from src.app import create_app, db
@@ -55,6 +56,27 @@ def _populate_initial_data():
     db.session.add_all(accounts)
     db.session.commit()
 
+    transfers = [
+        Transfer(account_id=1, 
+            amount=2000, 
+            transfer_type='deposit', 
+            description='guarda-roupa'),
+        Transfer(account_id=6,
+            amount=13, 
+            transfer_type='withdraw', 
+            description='açaí'),
+        Transfer(account_id=5,
+            amount=89,
+            transfer_type='deposit',
+            description='compact cd player'),
+        Transfer(account_id=3,
+            amount=2,
+            transfer_type='withdraw',
+            description='chiclete'),
+    ]
+    db.session.add_all(transfers)
+    db.session.commit()
+
 
 @pytest.fixture
 def client(app):
@@ -64,6 +86,11 @@ def client(app):
 @pytest.fixture
 def user():
     return db.session.get(User, 1)
+
+
+@pytest.fixture
+def account():
+    return db.session.get(Account, 2)
 
 
 @pytest.fixture
