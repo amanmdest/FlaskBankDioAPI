@@ -42,11 +42,11 @@ def test_get_account_success(client, user):
     account = db.session.execute(
         db.select(Account).where(Account.user_id == user.id)
         ).scalar()
-    
+
     assert response.status_code == HTTPStatus.OK
     assert response.json == {
         'user_id': account.user_id,
-        'holder': account.holder, 
+        'holder': account.holder,
         'balance': account.balance,
         'id': account.id
     }
@@ -91,7 +91,7 @@ def test_update_account_not_found(client, admin_access_token, user):
             'balance': 450.0,
            }
         )
-    
+
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json == {'message': 'The requested resource was not found'}
 
@@ -101,6 +101,6 @@ def test_delete_account_success(client, admin_access_token, user):
         f'accounts/{user.id}',
         headers={'Authorization': f'Bearer {admin_access_token}'}
     )
-    
+
     assert response.status_code == HTTPStatus.OK
     assert response.json == {'message': 'Account deleted'}

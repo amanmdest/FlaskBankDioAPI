@@ -8,7 +8,6 @@ from werkzeug.exceptions import NotFound
 
 from src.models.base import Base
 
-
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 jwt = JWTManager()
@@ -40,7 +39,7 @@ def create_app(test_config=None):
     jwt.init_app(app)
 
     # register blueprints
-    from src.controllers import auth, role, user, account, transfer
+    from src.controllers import account, auth, role, transfer, user
 
     app.register_blueprint(auth.app)
     app.register_blueprint(role.app)

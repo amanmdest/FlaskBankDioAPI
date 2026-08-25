@@ -14,7 +14,7 @@ def requires_role(role_name: list):
             user_id = get_jwt_identity()
             user = db.get_or_404(User, user_id)
 
-            if user.role.name not in  role_name:
+            if user.role.name not in role_name:
                 return {
                     'message': 'Current user doesn''t have access'
                 }, HTTPStatus.FORBIDDEN

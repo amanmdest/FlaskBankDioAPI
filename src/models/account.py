@@ -27,8 +27,8 @@ class Account(db.Model):
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "holder": self.holder,
-            "balance": self.balance
+            'id': self.id,
+            'user_id': self.user_id,
+            'holder': self.holder,
+            'balance': self.balance
         }

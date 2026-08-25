@@ -1,10 +1,10 @@
 import pytest
 
+from src.app import create_app, db
 from src.models.account import Account
+from src.models.role import Role
 from src.models.transfer import Transfer
 from src.models.user import User
-from src.models.role import Role
-from src.app import create_app, db
 
 
 @pytest.fixture(scope='session')
@@ -20,7 +20,6 @@ def app():
         print(f"Métodos: {rule.methods} -> Caminho: {rule.rule}")
     print("----------------------------------\n")
 
-
     with app.app_context():
         db.create_all()
         _populate_initial_data()
@@ -28,7 +27,7 @@ def app():
         db.drop_all()
 
 
-def _populate_initial_data(): 
+def _populate_initial_data():
     roles = [
         Role(id=1, name='admin'),
         Role(id=2, name='normal')
@@ -57,13 +56,13 @@ def _populate_initial_data():
     db.session.commit()
 
     transfers = [
-        Transfer(account_id=1, 
-            amount=2000, 
-            transfer_type='deposit', 
+        Transfer(account_id=1,
+            amount=2000,
+            transfer_type='deposit',
             description='guarda-roupa'),
         Transfer(account_id=6,
-            amount=13, 
-            transfer_type='withdraw', 
+            amount=13,
+            transfer_type='withdraw',
             description='açaí'),
         Transfer(account_id=5,
             amount=89,

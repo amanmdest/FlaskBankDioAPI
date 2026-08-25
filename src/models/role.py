@@ -14,4 +14,12 @@ class Role(db.Model):
 
     def __repr__(self) -> str:
         return f'Role(id={self.id!r}, \
-            name={self.name!r})'
+            name={self.name!r}, \
+            users={self.users!r},)'
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'name': self.name,
+            'users': [user.id for user in self.users],
+        }

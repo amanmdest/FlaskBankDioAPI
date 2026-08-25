@@ -18,7 +18,7 @@ class User(db.Model):
     role_id: Mapped[int] = mapped_column(
          sa.ForeignKey('roles.id'), nullable=False
     )
-    role: Mapped['Role'] = relationship(back_populates='users') # type: ignore
+    role: Mapped['Role'] = relationship(back_populates='users')  # type: ignore
     accounts: Mapped[list['Account']] = relationship()
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime, server_default=sa.func.now()

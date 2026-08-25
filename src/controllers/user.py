@@ -3,9 +3,8 @@ from http import HTTPStatus
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
 
+from src.services.user import UserServices
 from src.utils import requires_role
-
-from src.services.user import  UserServices
 
 services = UserServices
 app = Blueprint('user', __name__, url_prefix='/users')

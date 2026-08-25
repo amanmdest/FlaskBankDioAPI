@@ -1,9 +1,8 @@
 from http import HTTPStatus
 
-from flask import Blueprint, request
+from flask import Blueprint
 
 from src.services.transfer import TransferServices
-
 
 services = TransferServices
 app = Blueprint('transfer', __name__, url_prefix='/transfers')

@@ -1,5 +1,5 @@
-from enum import Enum
 from datetime import datetime
+from enum import Enum
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
@@ -10,6 +10,7 @@ from src.app import db
 class TransferType(str, Enum):
     deposit = 'deposit'
     withdraw = 'withdraw'
+
 
 class Transfer(db.Model):
     __tablename__ = 'transfers'

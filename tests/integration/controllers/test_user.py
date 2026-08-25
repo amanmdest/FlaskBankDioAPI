@@ -32,14 +32,14 @@ def test_list_users_success(admin_access_token, client):
         'users/', headers={'Authorization': f'Bearer {admin_access_token}'}
     )
     users = db.session.execute(db.select(User)).scalars()
-    
+
     assert response.status_code == HTTPStatus.OK
-    assert response.json == [ user.to_dict() for user in users ]
+    assert response.json == [user.to_dict() for user in users]
 
 
 def test_get_user_success(client, user):
     response = client.get('users/1')
-    
+
     assert response.status_code == HTTPStatus.OK
     assert response.json == user.to_dict()
 

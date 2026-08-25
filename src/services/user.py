@@ -17,18 +17,15 @@ class UserServices:
         db.session.commit()
         db.session.refresh(user)
 
-
     def _list_users():
         query = db.select(User)
         users = db.session.execute(query).scalars()
         result = [user.to_dict() for user in users]
         return result
 
-
     def _get_user(id):
         user = db.get_or_404(User, id)
         return user.to_dict()
-
 
     def _update_user(id):
         data = request.json
@@ -44,7 +41,6 @@ class UserServices:
         db.session.refresh(user)
 
         return user.to_dict()
-
 
     def _delete_user(id):
         user = db.get_or_404(User, id)
