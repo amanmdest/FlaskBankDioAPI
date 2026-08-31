@@ -10,7 +10,7 @@ from src.models.account import Account
 class User(db.Model):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, unique=True)
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     username: Mapped[str] = mapped_column(
         sa.String, unique=True, nullable=False
     )
