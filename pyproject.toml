@@ -12,6 +12,8 @@ dependencies = [
     "flask-sqlalchemy",
     "flask-migrate",
     "flask-jwt-extended",
+    "psycopg2-binary",
+    "gunicorn",
 ]
 
 [tool.poetry.group.dev.dependencies]
