@@ -33,6 +33,10 @@ extend-exclude = ['migrations']
 [tool.ruff.lint]
 preview = true
 select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'FAST']
+ignore = ["PLC0415"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F821"]
 
 [tool.ruff.format]
 preview = true

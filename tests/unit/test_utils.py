@@ -62,6 +62,6 @@ def test_required_role_fail(mocker):
     result = decorated_function()
 
     assert result == (
-        {'message': 'Current user doesn''t have access'},
+        {'message': 'Current user doesnt have access'},
         HTTPStatus.FORBIDDEN,
     )

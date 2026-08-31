@@ -1,13 +1,21 @@
-from flask import request
+from http import HTTPStatus
+
+from flask import abort, request
 from sqlalchemy import inspect
 
 from src.app import db
+from src.models.role import Role
 from src.models.user import User
 
 
 class UserServices:
     def _create_user():
         data = request.json
+        roles = db.session.execute(db.select(Role.id)).scalars().all()
+        if data['role_id'] not in roles:
+            # abort() automatically returns the right status code to Flask
+            abort(HTTPStatus.NOT_FOUND)
+
         user = User(
             username=data['username'],
             password=data['password'],
@@ -18,8 +26,7 @@ class UserServices:
         db.session.refresh(user)
 
     def _list_users():
-        query = db.select(User)
-        users = db.session.execute(query).scalars()
+        users = db.session.execute(db.select(User)).scalars()
         result = [user.to_dict() for user in users]
         return result
 

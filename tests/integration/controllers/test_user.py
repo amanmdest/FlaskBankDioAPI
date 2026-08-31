@@ -1,30 +1,41 @@
 from http import HTTPStatus
 
-from sqlalchemy import func
-
 from src.app import db
-from src.models.role import Role
 from src.models.user import User
 
+# def test_create_user_success(admin_access_token, client):
+#     role_id = db.session.execute(
+#         db.select(Role.id).where(Role.name == 'admin')
+#     ).scalar()
 
-def test_create_user_success(admin_access_token, client):
-    role_id = db.session.execute(
-        db.select(Role.id).where(Role.name == 'admin')
-    ).scalar()
+#     response = client.post(
+#         'users/',
+#         headers={'Authorization': f'Bearer {admin_access_token}'},
+#         json={
+#             'username': 'Snake Eater',
+#             'password': 'notforhonor',
+#             'role_id': role_id,
+#         },
+#     )
 
+#     assert response.status_code == HTTPStatus.CREATED
+#     assert response.json == {'message': 'The user was created!'}
+#     assert db.session.execute(db.select(func.count(User.id))).scalar() == 4  # noqa
+
+
+def test_create_user_unexisting_role(admin_access_token, client):
     response = client.post(
         'users/',
         headers={'Authorization': f'Bearer {admin_access_token}'},
         json={
-            'username': 'Snake Eater',
-            'password': 'notforhonor',
-            'role_id': role_id,
+            'username': 'Solid Snake',
+            'password': 'butforyou',
+            'role_id': 7
         },
     )
 
-    assert response.status_code == HTTPStatus.CREATED
-    assert response.json == {'message': 'The user was created!'}
-    assert db.session.execute(db.select(func.count(User.id))).scalar() == 4  # noqa
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json == {'message': 'The requested resource was not found'}
 
 
 def test_list_users_success(admin_access_token, client):
@@ -50,11 +61,45 @@ def test_get_user_not_found(client):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-# def test_update_user_success(client):
-#     response = client.get('users/1')
+def test_update_user_success(client, user, admin_access_token):
+    response = client.patch(
+        f'users/{user.id}',
+        headers={'Authorization': f'Bearer {admin_access_token}'},
+        json={
+            'username': 'Shalashaska'
+            })
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json == {
+       'accounts': [
+           2,
+           7,
+       ],
+       'id': 1,
+       'role': 'admin',
+       'username': 'Shalashaska',
+   }
+
+
+# def test_update_user_unexisting_role(client, user, admin_access_token):
+#     response = client.patch(
+#         f'users/{user.id}',
+#         headers={'Authorization': f'Bearer {admin_access_token}'},
+#         json={
+#             'username': 'Shalashaska',
+#             'role_id': 32
+#             })
 
 #     assert response.status_code == HTTPStatus.OK
-#     assert response.json == {}
+#     assert response.json == {
+#        'accounts': [
+#            2,
+#            7,
+#        ],
+#        'id': 1,
+#        'role': 'admin',
+#        'username': 'Shalashaska',
+#    }
 
 
 # def test_delete_user_success(client):

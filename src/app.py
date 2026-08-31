@@ -1,10 +1,10 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import HTTPException, NotFound
 
 from src.models.base import Base
 
@@ -39,7 +39,13 @@ def create_app(test_config=None):
     jwt.init_app(app)
 
     # register blueprints
-    from src.controllers import account, auth, role, transfer, user
+    from src.controllers import (
+        account,
+        auth,
+        role,
+        transfer,
+        user,
+    )  # noqa
 
     app.register_blueprint(auth.app)
     app.register_blueprint(role.app)
@@ -49,6 +55,16 @@ def create_app(test_config=None):
 
     @app.errorhandler(NotFound)
     def handle_404_error(e):
-        return {"message": "The requested resource was not found"}, 404
+        return {'message': 'The requested resource was not found'}, 404
+
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Retorna JSON em vez de HTML para todos os erros HTTP."""
+        response = jsonify({
+            "error": e.name,
+            "description": e.description
+        })
+        response.status_code = e.code
+        return response
 
     return app

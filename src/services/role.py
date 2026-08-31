@@ -14,6 +14,6 @@ class RoleServices:
     def _list_roles():
         query = db.select(Role)
         roles = db.session.execute(query).scalars()
-        result = [ role.to_dict() for role in roles ]
+        result = [role.to_dict() for role in roles]
 
         return result

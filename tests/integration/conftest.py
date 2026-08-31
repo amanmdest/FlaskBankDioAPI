@@ -15,10 +15,10 @@ def app():
         'JWT_SECRET_KEY': 'test',
     })
 
-    print("\n--- ROTAS REGISTRADAS NO TESTE ---")
+    print('\n--- ROTAS REGISTRADAS NO TESTE ---')
     for rule in app.url_map.iter_rules():
-        print(f"Métodos: {rule.methods} -> Caminho: {rule.rule}")
-    print("----------------------------------\n")
+        print(f'Métodos: {rule.methods} -> Caminho: {rule.rule}')
+    print('----------------------------------\n')
 
     with app.app_context():
         db.create_all()
@@ -28,18 +28,15 @@ def app():
 
 
 def _populate_initial_data():
-    roles = [
-        Role(id=1, name='admin'),
-        Role(id=2, name='normal')
-    ]
+    roles = [Role(name='admin'), Role(name='normal')]
 
     db.session.add_all(roles)
     db.session.commit()
 
     users = [
-        User(id=1, username='Liu Kang', password='guaaa', role_id=1),
-        User(id=2, username='Johnny Cage', password='123', role_id=2),
-        User(id=3, username='Sub Zero', password='abc', role_id=2)
+        User(username='Liu Kang', password='guaaa', role_id=1),
+        User(username='Johnny Cage', password='123', role_id=2),
+        User(username='Sub Zero', password='abc', role_id=2),
     ]
     db.session.add_all(users)
     db.session.commit()
@@ -56,22 +53,30 @@ def _populate_initial_data():
     db.session.commit()
 
     transfers = [
-        Transfer(account_id=1,
+        Transfer(
+            account_id=1,
             amount=2000,
             transfer_type='deposit',
-            description='guarda-roupa'),
-        Transfer(account_id=6,
+            description='guarda-roupa',
+        ),
+        Transfer(
+            account_id=6,
             amount=13,
             transfer_type='withdraw',
-            description='açaí'),
-        Transfer(account_id=5,
+            description='açaí',
+        ),
+        Transfer(
+            account_id=5,
             amount=89,
             transfer_type='deposit',
-            description='compact cd player'),
-        Transfer(account_id=3,
+            description='compact cd player',
+        ),
+        Transfer(
+            account_id=1,
             amount=2,
             transfer_type='withdraw',
-            description='chiclete'),
+            description='chiclete',
+        ),
     ]
     db.session.add_all(transfers)
     db.session.commit()
@@ -90,6 +95,11 @@ def user():
 @pytest.fixture
 def account():
     return db.session.get(Account, 2)
+
+
+@pytest.fixture
+def transfer():
+    return db.session.get(Transfer, 1)
 
 
 @pytest.fixture

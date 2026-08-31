@@ -26,12 +26,12 @@ def get_user(id):
     return services._get_user(id), HTTPStatus.OK
 
 
-@app.route('/<int:id>/update', methods=['PATCH'])
+@app.route('/<int:id>', methods=['PATCH'])
 def update_user(id):
     return services._update_user(id), HTTPStatus.OK
 
 
-@app.route('/<int:id>/delete', methods=['DELETE'])
+@app.route('/<int:id>', methods=['DELETE'])
 def delete_user(id):
     services._delete_user(id)
     return {'messsage': 'User deleted'}, HTTPStatus.NO_CONTENT

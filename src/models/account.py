@@ -12,12 +12,12 @@ class Account(db.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
         sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False
-        )
+    )
     holder: Mapped[str] = mapped_column(sa.String(150), nullable=False)
     balance: Mapped[int] = mapped_column(sa.Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(
-            sa.DateTime, server_default=sa.func.now()
-        )
+        sa.DateTime, server_default=sa.func.now()
+    )
 
     def __repr__(self) -> str:
         return f'account(id={self.id!r}, \
@@ -30,5 +30,5 @@ class Account(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'holder': self.holder,
-            'balance': self.balance
+            'balance': self.balance,
         }

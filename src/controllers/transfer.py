@@ -20,7 +20,7 @@ def list_transfers():
     return {'transfers': services._list_transfers()}, HTTPStatus.OK
 
 
-@app.route('/<int:account_id>', methods=['GET'])
+@app.route('/account/<int:account_id>', methods=['GET'])
 def list_transfers_by_account(account_id):
     return {
         'transfers': services._list_transfers_by_account(account_id)
@@ -29,4 +29,4 @@ def list_transfers_by_account(account_id):
 
 @app.route('/<int:id>', methods=['GET'])
 def get_transfer(id):
-    return {'transfer': services._get_transfer(id)}, HTTPStatus.OK
+    return services._get_transfer(id), HTTPStatus.OK

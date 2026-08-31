@@ -18,7 +18,7 @@ class Transfer(db.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     account_id: Mapped[int] = mapped_column(
         sa.ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False
-        )
+    )
     amount: Mapped[int] = mapped_column(sa.Float, nullable=False)
     transfer_type: Mapped[TransferType]
     description: Mapped[str] = mapped_column(sa.String(100))
@@ -27,14 +27,14 @@ class Transfer(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f'''Transfer(id={self.id!r},
+        return f"""Transfer(id={self.id!r},
                 account_id={self.account_id!r},
-                amount={self.amount!r}'''
+                amount={self.amount!r}"""
 
     def to_dict(self):
-            return {
-                "id": self.id,
-                "account_id": self.account_id,
-                "amount": self.amount,
-                "description": self.description
-            }
+        return {
+            'id': self.id,
+            'account_id': self.account_id,
+            'amount': self.amount,
+            'description': self.description,
+        }
