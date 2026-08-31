@@ -20,7 +20,8 @@ class TransferServices:
             if account.balance < data['amount']:
                 abort(
                     HTTPStatus.FORBIDDEN,
-                    description="you don't have enough money for that operation"
+                    description="you don't have enough \
+                    money for that operation"
                 )
 
             account_data = {'balance': account.balance - data['amount']}
@@ -56,5 +57,5 @@ class TransferServices:
 
     def _get_transfer(id):
         transfer = db.get_or_404(Transfer, id)
-        
+
         return transfer.to_dict()

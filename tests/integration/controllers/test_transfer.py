@@ -45,7 +45,8 @@ def test_make_transfer_solde_insuffisant(admin_access_token, client, account):
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json[
-        'description'] == "you don't have enough money for that operation"
+        'description'] == "you don't have enough \
+                    money for that operation"
     assert response2.json['balance'] == old_balance
 
 
@@ -61,7 +62,8 @@ def test_list_transfers_success(client):
 
 def test_list_transfers_by_account_success(client, transfer):
     response = client.get(f'transfers/account/{transfer.account_id}')
-    query = db.select(Transfer).where(Transfer.account_id == transfer.account_id)
+    query = db.select(Transfer).where(
+        Transfer.account_id == transfer.account_id)
     transfers = db.session.execute(query).scalars()
 
     assert response.status_code == HTTPStatus.OK
@@ -72,7 +74,6 @@ def test_list_transfers_by_account_success(client, transfer):
 
 def test_get_transfer_success(client, transfer):
     response = client.get(f'transfers/{transfer.id}')
-    
 
     assert response.status_code == HTTPStatus.OK
     assert response.json == transfer.to_dict()
