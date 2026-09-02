@@ -1,9 +1,10 @@
 from datetime import datetime
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.app import db
+from src.models.user import User
 
 
 class Account(db.Model):
@@ -13,8 +14,9 @@ class Account(db.Model):
     user_id: Mapped[int] = mapped_column(
         sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False
     )
+    user: Mapped['User'] = relationship(back_populates='accounts')
     holder: Mapped[str] = mapped_column(sa.String(150), nullable=False)
-    balance: Mapped[int] = mapped_column(sa.Float, default=0.0)
+    balance: Mapped[float] = mapped_column(sa.Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime, server_default=sa.func.now()
     )

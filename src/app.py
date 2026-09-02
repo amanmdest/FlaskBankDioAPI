@@ -12,13 +12,15 @@ db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 jwt = JWTManager()
 
+default_db = 'sqlite:///dio_bank.sqlite'
+database_url = os.environ.get('DATABASE_URL', default_db)
+
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        # SQLALCHEMY_DATABASE_URI='sqlite:///dio_bank.sqlite',
-        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
+        SQLALCHEMY_DATABASE_URI=database_url,
         JWT_SECRET_KEY='super-secret',
     )
 
@@ -61,10 +63,7 @@ def create_app(test_config=None):
     @app.errorhandler(HTTPException)
     def handle_exception(e):
         """Retorna JSON em vez de HTML para todos os erros HTTP."""
-        response = jsonify({
-            "error": e.name,
-            "description": e.description
-        })
+        response = jsonify({'error': e.name, 'description': e.description})
         response.status_code = e.code
         return response
 

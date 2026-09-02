@@ -20,9 +20,10 @@ class Transfer(db.Model):
         sa.ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False
     )
     amount: Mapped[float] = mapped_column(sa.Float, nullable=False)
-    transfer_type: Mapped[TransferType] = mapped_column(sa.Enum(
-        TransferType, name='transfertype', native_enum=True
-        ), nullable=False)
+    transfer_type: Mapped[TransferType] = mapped_column(
+        sa.Enum(TransferType, name='transfertype', native_enum=True),
+        nullable=False,
+    )
     description: Mapped[str] = mapped_column(sa.String(100))
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime, server_default=sa.func.now()

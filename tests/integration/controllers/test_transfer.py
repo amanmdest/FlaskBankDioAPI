@@ -4,7 +4,7 @@ from src.app import db
 from src.models.transfer import Transfer
 
 
-def test_make_transfer_success(admin_access_token, client, account):
+def test_withdraw_transfer_success(admin_access_token, client, account):
     old_balance = account.balance
     response = client.post(
         f'transfers/{account.id}',
@@ -15,7 +15,6 @@ def test_make_transfer_success(admin_access_token, client, account):
             'description': 'health',
         },
     )
-
     response2 = client.get(f'accounts/{account.id}')
 
     assert response.status_code == HTTPStatus.CREATED
@@ -28,6 +27,31 @@ def test_make_transfer_success(admin_access_token, client, account):
         },
     }
     assert response2.json['balance'] < old_balance
+
+
+def test_deposit_transfer_success(admin_access_token, client, account):
+    old_balance = account.balance
+    response = client.post(
+        f'transfers/{account.id}',
+        headers={'Authorization': f'Bearer {admin_access_token}'},
+        json={
+            'amount': 5000,
+            'transfer_type': 'deposit',
+            'description': 'health',
+        },
+    )
+    response2 = client.get(f'accounts/{account.id}')
+
+    assert response.status_code == HTTPStatus.CREATED
+    assert response.json == {
+        'transfer': {
+            'account_id': 2,
+            'amount': 5000.0,
+            'description': 'health',
+            'id': 6,
+        },
+    }
+    assert response2.json['balance'] > old_balance
 
 
 def test_make_transfer_solde_insuffisant(admin_access_token, client, account):
@@ -44,9 +68,11 @@ def test_make_transfer_solde_insuffisant(admin_access_token, client, account):
     response2 = client.get(f'accounts/{account.id}')
 
     assert response.status_code == HTTPStatus.FORBIDDEN
-    assert response.json[
-        'description'] == "you don't have enough \
+    assert (
+        response.json['description']
+        == "you don't have enough \
                     money for that operation"
+    )
     assert response2.json['balance'] == old_balance
 
 
@@ -63,7 +89,8 @@ def test_list_transfers_success(client):
 def test_list_transfers_by_account_success(client, transfer):
     response = client.get(f'transfers/account/{transfer.account_id}')
     query = db.select(Transfer).where(
-        Transfer.account_id == transfer.account_id)
+        Transfer.account_id == transfer.account_id
+    )
     transfers = db.session.execute(query).scalars()
 
     assert response.status_code == HTTPStatus.OK

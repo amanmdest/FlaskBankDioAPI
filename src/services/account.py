@@ -13,6 +13,7 @@ class AccountServices:
             holder=data['holder'],
             balance=data['balance'],
         )
+
         db.session.add(account)
         db.session.commit()
         db.session.refresh(account)
@@ -37,7 +38,6 @@ class AccountServices:
         account = db.get_or_404(Account, id)
         mapper = inspect(Account)
 
-        # for column in mapper.attrs:
         for column in mapper.columns:
             if column.key in data:
                 setattr(account, column.key, data[column.key])
@@ -49,5 +49,6 @@ class AccountServices:
 
     def _delete_account(id):
         account = db.get_or_404(Account, id)
+
         db.session.delete(account)
         db.session.commit()

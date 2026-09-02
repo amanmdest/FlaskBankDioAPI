@@ -1,10 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.app import db
-from src.models.account import Account
+
+if TYPE_CHECKING:
+    from src.models.account import Account
+    from src.models.role import Role
 
 
 class User(db.Model):
@@ -21,7 +25,9 @@ class User(db.Model):
     role: Mapped['Role'] = relationship(  # type: ignore # noqa: F821
         back_populates='users'
     )
-    accounts: Mapped[list['Account']] = relationship()
+    accounts: Mapped[list['Account']] = relationship(
+        back_populates='user', passive_deletes=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime, server_default=sa.func.now()
     )

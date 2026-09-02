@@ -21,7 +21,7 @@ class TransferServices:
                 abort(
                     HTTPStatus.FORBIDDEN,
                     description="you don't have enough \
-                    money for that operation"
+                    money for that operation",
                 )
 
             account_data = {'balance': account.balance - data['amount']}

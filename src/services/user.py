@@ -37,13 +37,12 @@ class UserServices:
     def _update_user(id):
         data = request.json
         user = db.get_or_404(User, id)
-        # print(user)
+
         mapper = inspect(User)
-        # for column in mapper.attrs:
         for column in mapper.columns:
-            # print(column.key)
             if column.key in data:
                 setattr(user, column.key, data[column.key])
+
         db.session.commit()
         db.session.refresh(user)
 
@@ -51,5 +50,6 @@ class UserServices:
 
     def _delete_user(id):
         user = db.get_or_404(User, id)
+
         db.session.delete(user)
         db.session.commit()

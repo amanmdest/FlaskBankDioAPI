@@ -29,7 +29,6 @@ def app():
 
 def _populate_initial_data():
     roles = [Role(name='admin'), Role(name='normal')]
-
     db.session.add_all(roles)
     db.session.commit()
 
@@ -88,8 +87,30 @@ def client(app):
 
 
 @pytest.fixture
+def role():
+    return db.session.get(Role, 1)
+
+
+@pytest.fixture
 def user():
     return db.session.get(User, 1)
+
+
+@pytest.fixture
+def outer_user():
+    outer = Role(name='XX')
+
+    db.session.add(outer)
+    db.session.commit()
+
+    xenomorfo = User(
+        username='Xenomorfo XX121', password='Mortal Kombat X', role_id='4'
+    )
+
+    db.session.add(xenomorfo)
+    db.session.commit()
+
+    return db.session.get(User, 5)
 
 
 @pytest.fixture
@@ -107,6 +128,19 @@ def admin_access_token(client, user):
     response = client.post(
         '/auth/login',
         json={'username': user.username, 'password': user.password},
+    )
+
+    return response.json['access_token']
+
+
+@pytest.fixture
+def outer_admin_access_token(client, outer_user):
+    response = client.post(
+        '/auth/login',
+        json={
+            'username': outer_user.username,
+            'password': outer_user.password,
+        },
     )
 
     return response.json['access_token']
